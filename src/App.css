@@ -38,3 +38,32 @@ section p {
   margin: 0;
   color: #52685d;
 }
+/* Distribuye los enlaces y deja espacio entre ellos */
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* Apariencia de cada enlace */
+nav a {
+  display: inline-block;
+  padding: 10px 18px;
+  background-color: #183d32;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+/* Cambia el color cuando pasamos el mouse */
+nav a:hover {
+  background-color: #2c5e4d;
+}
+
+/* Resalta el enlace al navegar con el teclado */
+nav a:focus-visible {
+  outline: 3px solid #b97816;
+  outline-offset: 3px;
+}
