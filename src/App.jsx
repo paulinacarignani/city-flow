@@ -1,4 +1,7 @@
 import './App.css'
+import IncidentMap from './components/IncidentMap.jsx'
+import IncidentList from './components/IncidentList.jsx'
+import IncidentForm from './components/IncidentForm.jsx'
 
 function App() {
   return (
@@ -12,20 +15,11 @@ function App() {
         <a href="#reportar">Reportar un incidente</a>
       </nav>
 
-      <section id="mapa">
-        <h2>Mapa de incidentes</h2>
-        <p>Aquí vamos a mostrar los cortes, accidentes e inundaciones.</p>
-      </section>
+      <IncidentMap />
 
-      <section id="avisos">
-        <h2>Últimos avisos</h2>
-        <p>Aquí aparecerán los reportes ciudadanos.</p>
-      </section>
+      <IncidentList />
 
-      <section id="reportar">
-        <h2>Reportar un incidente</h2>
-        <p>Aquí vamos a incorporar el formulario de reportes.</p>
-      </section>
+      <IncidentForm />
     </main>
   )
 }
