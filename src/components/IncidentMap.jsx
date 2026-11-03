@@ -1,6 +1,7 @@
 
 import { useState } from 'react'
-import { MapContainer, TileLayer, CircleMarker, Popup, Marker, useMapEvents
+import {
+  MapContainer, TileLayer, CircleMarker, Popup, Marker, useMapEvents
 } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -17,35 +18,24 @@ function SeleccionarUbicacion({ alSeleccionar }) {
   return null
 }
 
-function IncidentMap() {
+function IncidentMap({ incidentes = [] }) {
   const centro = [-26.8241, -65.2226]
 
   const [ubicacionSeleccionada, setUbicacionSeleccionada] =
     useState(null)
 
-  const incidentes = [
-    {
-      id: 1,
-      tipo: 'Accidente',
-      descripcion: 'Accidente de tránsito',
-      posicion: [-26.8241, -65.2226],
-      color: 'red'
-    },
-    {
-      id: 2,
-      tipo: 'Corte de calle',
-      descripcion: 'Calle cortada por obras',
-      posicion: [-26.8300, -65.2150],
-      color: 'orange'
-    },
-    {
-      id: 3,
-      tipo: 'Inundación',
-      descripcion: 'Acumulación de agua',
-      posicion: [-26.8180, -65.2300],
-      color: 'blue'
+  function obtenerColor(tipo) {
+    switch (tipo?.toLowerCase()) {
+      case 'accidente':
+        return 'red'
+      case 'corte':
+        return 'orange'
+      case 'inundacion':
+        return 'blue'
+      default:
+        return 'gray'
     }
-  ]
+  }
 
   return (
     <section id="mapa">
@@ -66,23 +56,36 @@ function IncidentMap() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {incidentes.map((incidente) => (
-          <CircleMarker
-            key={incidente.id}
-            center={incidente.posicion}
-            radius={10}
-            pathOptions={{
-              color: incidente.color,
-              fillColor: incidente.color,
-              fillOpacity: 0.8
-            }}
-          >
-            <Popup>
-              <strong>{incidente.tipo}</strong>
-              <p>{incidente.descripcion}</p>
-            </Popup>
-          </CircleMarker>
-        ))}
+        {incidentes.map((incidente) => {
+          const lat = Number(incidente.latitud)
+          const lng = Number(incidente.longitud)
+          const color = obtenerColor(incidente.tipo)
+
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            return null
+          }
+
+          return (
+            <CircleMarker
+              key={incidente.id}
+              center={[lat, lng]}
+              radius={10}
+              pathOptions={{
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.8
+              }}
+            >
+              <Popup>
+                <strong>{incidente.tipo}</strong>
+                <p>{incidente.referencia}</p>
+                {incidente.descripcion && (
+                  <p>{incidente.descripcion}</p>
+                )}
+              </Popup>
+            </CircleMarker>
+          )
+        })}
 
         <SeleccionarUbicacion
           alSeleccionar={setUbicacionSeleccionada}
