@@ -1,8 +1,39 @@
-function IncidentList() {
+
+function IncidentList({ incidentes = [], cargando = false, error = '' }) {
   return (
     <section id="avisos">
       <h2>Últimos avisos</h2>
-      <p>Aquí aparecerán los reportes ciudadanos.</p>
+
+      {cargando && <p>Cargando reportes...</p>}
+
+      {error && <p role="alert">{error}</p>}
+
+      {!cargando && !error && incidentes.length === 0 && (
+        <p>Todavía no hay reportes registrados.</p>
+      )}
+
+      {!cargando && incidentes.length > 0 && (
+        <ul>
+          {incidentes.map((incidente) => (
+            <li key={incidente.id}>
+              <strong>
+                {incidente.tipo.charAt(0).toUpperCase() +
+                  incidente.tipo.slice(1)}
+              </strong>
+
+              <p>{incidente.referencia}</p>
+
+              {incidente.descripcion && (
+                <p>{incidente.descripcion}</p>
+              )}
+
+              <small>
+                {new Date(incidente.creado_en).toLocaleString('es-AR')}
+              </small>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   )
 }

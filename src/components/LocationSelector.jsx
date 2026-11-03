@@ -1,6 +1,11 @@
 
 import { useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
 } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -9,22 +14,20 @@ function DetectarClick({ onSelectLocation }) {
     click(e) {
       onSelectLocation({
         lat: e.latlng.lat,
-        lng: e.latlng.lng
+        lng: e.latlng.lng,
       })
-    }
+    },
   })
 
   return null
 }
 
-function LocationSelector({ onSelectLocation = () => {} }) {
+function LocationSelector({ onSelectLocation = () => { } }) {
   const centro = [-26.8241, -65.2226]
-
   const [ubicacion, setUbicacion] = useState(null)
 
   function seleccionarUbicacion(nuevaUbicacion) {
     setUbicacion(nuevaUbicacion)
-
     onSelectLocation(nuevaUbicacion)
   }
 

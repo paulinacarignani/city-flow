@@ -1,28 +1,14 @@
 
-import { useState } from 'react'
 import {
-  MapContainer, TileLayer, CircleMarker, Popup, Marker, useMapEvents
+  MapContainer,
+  TileLayer,
+  CircleMarker,
+  Popup,
 } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 
-function SeleccionarUbicacion({ alSeleccionar }) {
-  useMapEvents({
-    click(e) {
-      alSeleccionar({
-        lat: e.latlng.lat,
-        lng: e.latlng.lng
-      })
-    }
-  })
-
-  return null
-}
-
 function IncidentMap({ incidentes = [] }) {
   const centro = [-26.8241, -65.2226]
-
-  const [ubicacionSeleccionada, setUbicacionSeleccionada] =
-    useState(null)
 
   function obtenerColor(tipo) {
     switch (tipo?.toLowerCase()) {
@@ -59,11 +45,12 @@ function IncidentMap({ incidentes = [] }) {
         {incidentes.map((incidente) => {
           const lat = Number(incidente.latitud)
           const lng = Number(incidente.longitud)
-          const color = obtenerColor(incidente.tipo)
 
           if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
             return null
           }
+
+          const color = obtenerColor(incidente.tipo)
 
           return (
             <CircleMarker
@@ -71,14 +58,15 @@ function IncidentMap({ incidentes = [] }) {
               center={[lat, lng]}
               radius={10}
               pathOptions={{
-                color: color,
+                color,
                 fillColor: color,
-                fillOpacity: 0.8
+                fillOpacity: 0.8,
               }}
             >
               <Popup>
                 <strong>{incidente.tipo}</strong>
                 <p>{incidente.referencia}</p>
+
                 {incidente.descripcion && (
                   <p>{incidente.descripcion}</p>
                 )}
@@ -86,32 +74,11 @@ function IncidentMap({ incidentes = [] }) {
             </CircleMarker>
           )
         })}
-
-        <SeleccionarUbicacion
-          alSeleccionar={setUbicacionSeleccionada}
-        />
-
-        {ubicacionSeleccionada && (
-          <Marker
-            position={[
-              ubicacionSeleccionada.lat,
-              ubicacionSeleccionada.lng
-            ]}
-          >
-            <Popup>
-              Ubicación seleccionada para reportar
-            </Popup>
-          </Marker>
-        )}
       </MapContainer>
 
-      {ubicacionSeleccionada && (
-        <p>
-          <strong>Ubicación seleccionada:</strong>
-          {' '}Latitud: {ubicacionSeleccionada.lat.toFixed(6)}
-          {' '}| Longitud: {ubicacionSeleccionada.lng.toFixed(6)}
-        </p>
-      )}
+      <p>
+        Incidentes registrados: {incidentes.length}
+      </p>
     </section>
   )
 }
