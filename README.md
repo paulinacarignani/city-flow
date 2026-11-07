@@ -6,9 +6,10 @@ nuevos reportes.
 
 ## Tecnologías
 
-- React y Vite para la aplicación web.
-- Supabase y PostgreSQL para guardar los reportes.
-- Leaflet para mostrar el mapa.
+- Frontend: React, JavaScript, CSS y Vite.
+- Backend/API: Supabase, que proporciona una API para consultar y crear reportes.
+- Base de datos: PostgreSQL, alojada en Supabase.
+- Mapas: Leaflet con cartografía de OpenStreetMap.
 
 ## Ejecutar el proyecto
 
@@ -21,11 +22,12 @@ npm run dev
 
 ## Base de datos (Supabase)
 
-La estructura de la tabla `public.incidentes` y sus permisos están en
-[`supabase/migrations/20261102000000_create_incidentes.sql`](supabase/migrations/20261102000000_create_incidentes.sql).
-La migración crea el ID y la fecha automáticamente, valida los tipos permitidos,
-la referencia y las coordenadas, y activa RLS. La aplicación puede consultar y
-crear incidentes; no puede modificarlos ni borrarlos.
+La base de datos utiliza PostgreSQL mediante Supabase. La estructura y los permisos de la tabla `public.incidentes` están definidos en dos migraciones SQL:
+
+- `supabase/migrations/20261102000000_create_incidentes.sql`: crea la tabla de incidentes, establece las restricciones iniciales y configura las políticas de acceso (RLS).
+- La migración cuyo nombre comienza con `20261107000000`: agrega la columna `direccion` y permite que la referencia adicional sea opcional, con un máximo de 150 caracteres.
+
+La aplicación puede consultar y crear incidentes mediante Supabase. No se implementaron funciones para editar o eliminar reportes desde la interfaz.
 
 Para cargar reportes ficticios en un proyecto vacío, ejecutar una sola vez
 [`supabase/seed.sql`](supabase/seed.sql). No volver a ejecutarlo en una base que
@@ -94,13 +96,15 @@ Solicitar esos valores a la responsable de la conexión.
 No usar la contraseña de la base ni la clave service_role.
 No subir .env.local al repositorio.
 
-Si se utiliza un proyecto Supabase nuevo, ejecutar primero
-supabase/migrations/20261102000000_create_incidentes.sql
-y después supabase/seed.sql.
+Si se utiliza un proyecto Supabase nuevo, ejecutar las migraciones SQL en el siguiente orden:
 
-Si se utiliza la base ya configurada del equipo, confirmar
-con su responsable qué scripts están aplicados antes de ejecutarlos.
-Repetir el seed puede duplicar los datos de ejemplo.
+1. `supabase/migrations/20261102000000_create_incidentes.sql`: crea la tabla de incidentes y configura sus restricciones y permisos iniciales.
+2. La migración de `supabase/migrations` cuyo nombre comienza con `20261107000000`: agrega la dirección aproximada y permite que la referencia adicional sea opcional.
+
+Después, ejecutar una sola vez `supabase/seed.sql` para cargar los datos ficticios de ejemplo.
+
+Si se utiliza la base de datos del equipo, no volver a ejecutar las migraciones sin comprobar cuáles ya están aplicadas.
+
 
 ### Ejecutar la aplicación
 
@@ -126,8 +130,10 @@ Se necesita internet para Supabase y el fondo del mapa.
 ## Funciones de la versión actual
 
 - Crear reportes de cortes, accidentes e inundaciones.
-- Seleccionar la ubicación en un mapa.
-- Validar los campos obligatorios.
+- Seleccionar la ubicación del incidente en un mapa.
+- Obtener automáticamente una dirección aproximada a partir de la ubicación seleccionada.
+- Validar los campos obligatorios: tipo de incidente y ubicación.
+- Permitir una referencia adicional opcional de hasta 150 caracteres.
 - Guardar una descripción opcional de hasta 500 caracteres.
 - Consultar reportes en lista y mapa.
 - Abrir la información desde un marcador.
