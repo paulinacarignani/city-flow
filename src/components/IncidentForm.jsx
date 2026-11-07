@@ -19,14 +19,11 @@ function IncidentForm({ onReporteCreado }) {
 
     const referenciaLimpia = referencia.trim()
 
-    if (
-      referenciaLimpia.length < 3 ||
-      referenciaLimpia.length > 150
-    ) {
-      setMensaje('La referencia debe tener entre 3 y 150 caracteres.')
-      setError(true)
-      return
-    }
+    if (referenciaLimpia.length > 150) {
+  setMensaje('La referencia no puede superar los 150 caracteres.')
+  setError(true)
+  return
+}
 
     if (descripcion.length > 500) {
       setMensaje('La descripción no puede superar los 500 caracteres.')
@@ -39,17 +36,23 @@ function IncidentForm({ onReporteCreado }) {
       setError(true)
       return
     }
-
+    if (ubicacion.buscando) {
+      setMensaje('Esperá a que termine la búsqueda de dirección.')
+      setError(true)
+      return
+    }
     setGuardando(true)
 
     try {
       await crearIncidente({
-        tipo,
-        referencia: referenciaLimpia,
-        descripcion,
-        latitud: ubicacion.lat,
-        longitud: ubicacion.lng,
-      })
+  tipo,
+  referencia: referenciaLimpia,
+  descripcion,
+  direccion: ubicacion.direccion || null,
+  latitud: ubicacion.lat,
+  longitud: ubicacion.lng,
+})
+      
       if (onReporteCreado) {
         await onReporteCreado()
       }
@@ -90,19 +93,18 @@ function IncidentForm({ onReporteCreado }) {
           <option value="inundacion">Inundación</option>
         </select>
 
-        <label htmlFor="referencia">Referencia *</label>
+        <label htmlFor="referencia">
+        Referencia adicional (opcional)
+        </label>
 
         <input
-          id="referencia"
-          type="text"
-          value={referencia}
-          onChange={(event) => setReferencia(event.target.value)}
-          minLength={3}
-          maxLength={150}
-          placeholder="Ej.: Corte de luz en la zona"
-          required
+        id="referencia"
+        type="text"
+        value={referencia}
+        onChange={(event) => setReferencia(event.target.value)}
+        maxLength={150}
+        placeholder="Ej.: Frente a la plaza"
         />
-
         <label htmlFor="descripcion">
           Descripción (opcional)
         </label>
@@ -118,7 +120,11 @@ function IncidentForm({ onReporteCreado }) {
 
         <p>{descripcion.length}/500 caracteres</p>
 
-        <LocationSelector onSelectLocation={setUbicacion} />
+        <LocationSelector
+        ubicacion={ubicacion}
+        onSelectLocation={setUbicacion}
+        disabled={guardando}
+        />
 
         {ubicacion && (
           <p role="status">
@@ -136,12 +142,19 @@ function IncidentForm({ onReporteCreado }) {
           </p>
         )}
 
-        <button type="submit" disabled={guardando}>
-          {guardando ? 'Guardando…' : 'Enviar reporte'}
+        <button
+        type="submit"
+        disabled={guardando || ubicacion?.buscando}
+        >
+        {guardando
+        ? 'Guardando…'
+        : ubicacion?.buscando
+        ? 'Buscando dirección…'
+        : 'Enviar reporte'}
         </button>
-      </form>
-    </section>
-  )
-}
+        </form>
+        </section>
+        )
+      }
 
 export default IncidentForm

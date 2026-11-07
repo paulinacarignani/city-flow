@@ -21,7 +21,17 @@ function IncidentList({ incidentes = [], cargando = false, error = '' }) {
                   incidente.tipo.slice(1)}
               </strong>
 
-              <p>{incidente.referencia}</p>
+              <p>
+              <strong>Ubicación:</strong>{' '}
+              {incidente.direccion || 'Dirección no registrada'}
+              </p>
+
+              {incidente.referencia && (
+              <p>
+              <strong>Referencia adicional:</strong>{' '}
+             {incidente.referencia}
+             </p>
+             )}
 
               {incidente.descripcion && (
                 <p>{incidente.descripcion}</p>
