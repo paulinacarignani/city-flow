@@ -56,11 +56,9 @@ Se instaló y ejecutó el proyecto en otra computadora.
 Se comprobó la consulta de reportes, la creación de
 PRUEBA Milena 01 y su visualización en lista y mapa.
 
-También se verificaron la ubicación obligatoria,
-la referencia obligatoria, el rechazo de referencias
-de dos caracteres o formadas solo por espacios,
-y la conservación del reporte después de detener
-y reiniciar el frontend.
+También se verificaron la selección obligatoria de una ubicación, las validaciones del formulario y la conservación del reporte después de detener y reiniciar el frontend.
+
+Las pruebas iniciales de Milena incluían validaciones de referencia obligatoria y longitud mínima. Posteriormente, el formulario fue actualizado para permitir una referencia adicional opcional, con un máximo de 150 caracteres.
 
 Los resultados detallados están registrados en pruebas.md.
 
