@@ -24,12 +24,13 @@ export async function crearIncidente(datos) {
   const supabase = obtenerClienteSupabase();
 
   const nuevoIncidente = {
-    tipo: datos.tipo,
-    referencia: datos.referencia.trim(),
-    descripcion: datos.descripcion?.trim() || null,
-    latitud: datos.latitud,
-    longitud: datos.longitud,
-  };
+  tipo: datos.tipo,
+  referencia: datos.referencia?.trim() || null,
+  descripcion: datos.descripcion?.trim() || null,
+  direccion: datos.direccion?.trim() || null,
+  latitud: datos.latitud,
+  longitud: datos.longitud,
+};
 
   const { data, error } = await supabase
     .from('incidentes')

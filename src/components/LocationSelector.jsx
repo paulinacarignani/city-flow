@@ -1,5 +1,4 @@
-
-import { useState } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   MapContainer,
   TileLayer,
@@ -7,14 +6,17 @@ import {
   Popup,
   useMapEvents,
 } from 'react-leaflet'
+import { obtenerDireccion } from '../services/direccion.js'
 import 'leaflet/dist/leaflet.css'
 
-function DetectarClick({ onSelectLocation }) {
+function DetectarClick({ onSelectLocation, disabled }) {
   useMapEvents({
-    click(e) {
+    click(event) {
+      if (disabled) return
+
       onSelectLocation({
-        lat: e.latlng.lat,
-        lng: e.latlng.lng,
+        lat: event.latlng.lat,
+        lng: event.latlng.lng,
       })
     },
   })
@@ -22,13 +24,56 @@ function DetectarClick({ onSelectLocation }) {
   return null
 }
 
-function LocationSelector({ onSelectLocation = () => { } }) {
+function LocationSelector({
+  ubicacion,
+  onSelectLocation,
+  disabled = false,
+}) {
   const centro = [-26.8241, -65.2226]
-  const [ubicacion, setUbicacion] = useState(null)
+  const ultimaSeleccion = useRef(0)
 
-  function seleccionarUbicacion(nuevaUbicacion) {
-    setUbicacion(nuevaUbicacion)
-    onSelectLocation(nuevaUbicacion)
+  useEffect(() => {
+    return () => {
+      ultimaSeleccion.current += 1
+    }
+  }, [])
+
+  async function seleccionarUbicacion(coordenadas) {
+    const numeroSeleccion = ++ultimaSeleccion.current
+
+    onSelectLocation({
+      ...coordenadas,
+      direccion: null,
+      buscando: true,
+      errorDireccion: '',
+    })
+
+    try {
+      const direccion = await obtenerDireccion(
+        coordenadas.lat,
+        coordenadas.lng
+      )
+
+      // Si se eligió otro punto, ignoramos el resultado anterior.
+      if (numeroSeleccion !== ultimaSeleccion.current) return
+
+      onSelectLocation({
+        ...coordenadas,
+        direccion,
+        buscando: false,
+        errorDireccion: '',
+      })
+    } catch {
+      if (numeroSeleccion !== ultimaSeleccion.current) return
+
+      onSelectLocation({
+        ...coordenadas,
+        direccion: null,
+        buscando: false,
+        errorDireccion:
+          'No se pudo obtener la dirección. Podés elegir otro punto o guardar con las coordenadas.',
+      })
+    }
   }
 
   return (
@@ -36,8 +81,7 @@ function LocationSelector({ onSelectLocation = () => { } }) {
       <h3>Seleccionar ubicación del incidente</h3>
 
       <p>
-        Hacé clic en el mapa para indicar dónde
-        ocurrió el incidente.
+        Hacé clic en el mapa para indicar dónde ocurrió el incidente.
       </p>
 
       <MapContainer
@@ -46,30 +90,55 @@ function LocationSelector({ onSelectLocation = () => { } }) {
         style={{ height: '350px', width: '100%' }}
       >
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         <DetectarClick
           onSelectLocation={seleccionarUbicacion}
+          disabled={disabled}
         />
 
         {ubicacion && (
           <Marker position={[ubicacion.lat, ubicacion.lng]}>
-            <Popup>Ubicación seleccionada</Popup>
+            <Popup>
+              {ubicacion.direccion || 'Ubicación seleccionada'}
+            </Popup>
           </Marker>
         )}
       </MapContainer>
 
       {ubicacion && (
-        <p>
-          <strong>Ubicación seleccionada:</strong>
-          <br />
-          Latitud: {ubicacion.lat.toFixed(6)}
-          <br />
-          Longitud: {ubicacion.lng.toFixed(6)}
-        </p>
+        <div role="status" aria-live="polite">
+          <p>
+            <strong>Ubicación seleccionada:</strong>
+            <br />
+            {ubicacion.buscando
+              ? 'Buscando dirección…'
+              : ubicacion.direccion || ubicacion.errorDireccion}
+          </p>
+
+          <small>
+            Latitud: {ubicacion.lat.toFixed(6)}
+            {' · '}
+            Longitud: {ubicacion.lng.toFixed(6)}
+          </small>
+        </div>
       )}
+
+      <p>
+        <small>
+          Dirección aproximada obtenida mediante Nominatim.
+          Datos de{' '}
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noreferrer"
+          >
+            © OpenStreetMap contributors
+          </a>.
+        </small>
+      </p>
     </div>
   )
 }
